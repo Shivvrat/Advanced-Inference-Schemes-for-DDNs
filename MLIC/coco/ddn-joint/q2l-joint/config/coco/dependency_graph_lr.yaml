@@ -1,0 +1,18 @@
+JOINT_LEARNING:
+  PRETRAINED: True
+#  MODEL_DIRECTORY: "final_models_for_submission/jointly_trained_lr/trained_models/lr/dn_lr.pkl"
+  MODEL_DIRECTORY: "pipeline_models/trained_dn_lr_model"
+  DN_TYPE: "lr"
+  LEARNING_RATE: 0.0001
+  L1_WEIGHT: 0.001
+  EXTRA_EPOCHS: 2
+  TWO_LOSSES: False
+  WEIGHT_DECAY: 0.0005
+
+DN_INFERENCE:
+  NUM_SAMPLES: 10000
+  NUM_POOLS: 20
+  BATCH_SIZE: 32
+
+SOLVER:
+  CLIP_GRAD_L2NORM: 3.0

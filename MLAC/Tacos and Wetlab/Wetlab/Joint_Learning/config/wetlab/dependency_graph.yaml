@@ -1,0 +1,28 @@
+OUTPUT_PATH: ./outputs/
+
+LOGGER_PATH: "./logger/"
+
+DEVICE: "gpu"
+
+DATASET:
+  TRAIN_FILE_LOCATION: './data/external/cnn_output/wetlab.train.data'
+  TEST_FILE_LOCATION: './data/external/cnn_output/wetlab.test.data'
+
+MODEL:
+  EPOCHS: 500
+  LEARNING_RATE: 0.01
+  L1_WEIGHT: 0.01
+  NAME: "nn"
+
+SAMPLING:
+  NUM_SAMPLES: 10000
+  THRESHOLD: 0.3
+
+TRAIN:
+  BATCH_SIZE: 32
+
+TEST:
+  BATCH_SIZE: 32
+
+SOLVER:
+  OPTIMIZING_METHOD: "sgd"
