@@ -1,42 +1,43 @@
 # Deep Dependency Networks
 
 # Introduction
-This is the official implementation of Deep Dependency Networks (DDN). DDNs augments a dependency network to the output of a neural network. 
+
+Welcome to the official implementation of "Deep Dependency Networks and Advanced Inference Schemes for Multi-Label Classification." In this repository, we present the key details of our research work on enhancing multi-label classification using Deep Dependency Networks (DDNs) and advanced inference techniques.
 
 # Abstract
-We propose a simple approach which combines the strengths of probabilistic graphical models and deep learning architectures for solving the multi-label classification task in images and videos.  First, we show that the performance of previous approaches that combine Markov Random Fields with neural networks can be modestly improved by leveraging more powerful methods such as iterative join graph propagation, integer linear programming, and L<sub>1</sub> regularization-based structure learning. Then we propose a new modeling framework \textit{called deep dependency network}, which augments a dependency network, a model that is easy to train and learns more accurate dependencies but is limited to Gibbs sampling for inference to the output layer of a neural network. We show that despite its simplicity, jointly learning this new architecture yields significant improvements in performance over the baseline neural network. In particular, our experimental evaluation on three video activity classification datasets: Charades, Textually Annotated Cooking Scenes (TACoS), and Wetlab, and three multi-label image classification datasets: PASCAL VOC, MS-COCO, and NUS-WIDE show that deep dependency networks are almost always superior to pure neural architectures that do not use dependency networks.
 
-[//]: # (![]&#40;&#41;)
-[//]: # (*Illustration of Dependency Network &#40;for Action Classification&#41; for three actions &#40;labels&#41;. Video clips are given as input to the NN and it produces the features &#40;$E_1,E_2,E_3$&#41; for the DN &#40;red colored nodes&#41;. These features are then used to model the conditional distributions at each variable $X_i$ &#40;blue colored nodes&#41;. At each node $X_i$, the form of the conditional distribution is the variable given its parents &#40;incoming arrows - represented by orange and green colored arrows&#41; in the graph.*)
+We present a unified framework called deep dependency networks (DDNs) that combines dependency networks and deep learning architectures for multi-label classification, with a particular emphasis on image and video data. The primary advantage of dependency networks is their ease of training, in contrast to other probabilistic graphical models like Markov networks. In particular, when combined with deep learning architectures, they provide an intuitive, easy-to-use loss function for multi-label classification. A drawback of DDNs compared to Markov networks is their lack of advanced inference schemes, necessitating the use of Gibbs sampling. To address this challenge, we propose novel inference schemes based on local search and integer linear programming for computing the most likely assignment to the labels given observations. We evaluate our novel methods on three video datasets (Charades, TACoS, Wetlab) and three multi-label image datasets (MS-COCO, PASCAL VOC, NUS-WIDE), comparing their performance with (a) basic neural architectures and (b) neural architectures combined with Markov networks equipped with advanced inference and learning techniques. Our results demonstrate the superiority of our new DDN methods over the two competing approaches.
 
-| ![images/dn.jpg](images/dn.jpg) |
-|:--:| 
-| *Illustration of Dependency Network (for Action Classification) for three actions (labels). Video clips are given as input to the NN and it produces the features ($E_1,E_2,E_3$) for the DN (red colored nodes). These features are then used to model the conditional distributions at each variable $X_i$ (blue colored nodes). At each node $X_i$, the form of the conditional distribution is the variable given its parents (incoming arrows - represented by orange and green colored arrows) in the graph.* |
+|                                     
+
+![images/dn.png](images/dn.png)                                                                                                                                                                                                                                                |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| *Illustration of improvements made by our proposed inference scheme for DDNs. The DDN learns label relationships and the inference scheme excels in leveraging these relationships to accurately identify concealed objects, such as the **sports ball**.* |
 
 
-# Results
-## Results for multi-label action classification task
-| ![results_mlac](images/results_mlac.png) |
-|:--:| 
-| *Comparison of our methods with the baseline for MLAC task. The best/second best values are bold/underlined. The last row shows the relative improvement made by the best performing proposed method over the baseline* |
+|                                                                                                                                                                                                                                                ![images/dn_main_figure.png](images/dn_main_figure.png)                                                                                                                                                                                                                                                |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| *Illustration of Dependency Network (for Action Classification) for three actions (labels). Video clips are given as input to the NN and it produces the features ($e_1,e_2,e_3$) for the DN (red colored nodes). These features are then used by the sigmoid output ($\sigma_1$, $\ldots$, $\sigma_n$) of the dependency layer to model the local conditional distributions. At each node $X_i$, the form of the conditional distribution is the variable given its parents (incoming arrows - represented by orange and green colored arrows) in the graph.* |
 
-## Results for multi-label image classification task
-| ![results_mlac](images/results_mlic.png) |
-|:--:| 
-| *Comparison of our methods with the baseline for MLIC task. The best/second best values are bold/underlined. The last row shows the relative improvement made by the best-performing proposed method over the baseline.* |
+# Annotation Comparison
 
-## AP metric for multi-label image classification task on PASCAL VOC
-| ![img_1.png](images/voc_ap.png)
-|:--:| 
-| *Comparison of AP (in %) of our method and state-of-the-art methods on Pascal VOC2007 dataset. Numbers in bold indicate the best performance.* |
-
-## Annotation Comparison
-| ![img.png](images/annotations.png) |
-|:--:| 
-| *Annotations comparison of Q2L and DDN-MLP on MS-COCO dataset. Labels in bold represent the difference between the two methods assuming that the threshold of 0.3 is used (i.e., every label whose probability is greater than 0.3 is considered a predicted label). We also provide the probabilities in (). Labels in [] represent labels that were not classified by the corresponding method (Added to compare the probabilities). The first three column shows examples where DDN improves over CNN, while the last column (outlined in red) shows an example where DDN is worse than CNN. Best viewed in colors.* |
+|                                                                                                                                                                                                                                                                                             ![img.png](images/annotations.png)                                                                                                                                                                                                                                                                                             |
+| :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| *Comparison of labels predicted by Q2L and our DDN-ILP scheme on the MS-COCO dataset. Labels in bold represent the difference between the predictions of the two methods, assuming that a threshold of 0.5 is used (i.e., every label whose probability $ > 0.5$ is considered a predicted label). Due to the MPE focus in DDN-ILP, only label configurations are generated, omitting corresponding probabilities. The first three column shows examples where DDN improves over Q2L, while the last column (outlined in red) shows an example where DDN is worse than Q2L.* |
 
 # Quick Start
+
 1. Clone this repo.
 2. Use to requirements file ([charades](MLAC/requirements/joint_ddn_charades.yml), [wetlab and TaCOS](MLAC/requirements/joint_ddn_tacos_wetlab.yml), [coco](MLIC/requirements/ddn_coco.yml), [NUS-WIDE and PASCAL VOC](MLIC/requirements/ddn_nus_voc.yml)) given in the corresponding directories to install the packages (please use conda for this). We also provide the requirements files to install the dependencies for all the baselines in their corresponding folders.
-3. Download the datasets and the pre-trained models. More details about the baselines are given in MODEL_ZOO.md files ([MLAC](MLAC/MODEL_ZOO.md) and [MLIC](MLIC/MODEL_ZOO.md) ). 
-4. Train and Test DDN. More details are given in GETTING_STARTED.md files in both directories. 
+3. Download the datasets and the pre-trained models. More details about the baselines are given in MODEL_ZOO.md files ([MLAC](MLAC/MODEL_ZOO.md) and [MLIC](MLIC/MODEL_ZOO.md) ).
+4. Use the requirement file for the [Advanced Inference Schemes]("DDN/Methods/Inference_Schemes/DDN-Advanced-Inference-main/environment.yml")
+5. Train and perform Inferences DDN. More details are given in GETTING_STARTED.md files in the directories.
+
+The following things are supported for this project -
+1. Train the DDNs jointly for all the datasets.
+2. Perform the following inference strategies
+   1. Gibbs Sampling
+   2. Local Search Based Methods
+   3. Multi-Linear Integer Programming
+
+[//]: #
