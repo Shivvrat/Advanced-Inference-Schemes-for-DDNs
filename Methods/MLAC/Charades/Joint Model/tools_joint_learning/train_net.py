@@ -30,16 +30,16 @@ logger = logging.get_logger(__name__)
 
 
 def train_epoch(
-        train_loader,
-        model,
-        dn_models,
-        optimizer,
-        scaler,
-        train_meter,
-        cur_epoch,
-        cfg,
-        lr,
-        writer=None,
+    train_loader,
+    model,
+    dn_models,
+    optimizer,
+    scaler,
+    train_meter,
+    cur_epoch,
+    cfg,
+    lr,
+    writer=None,
 ):
     """
     Perform the video training for one epoch.
@@ -64,12 +64,12 @@ def train_epoch(
 
     if cfg.MIXUP.ENABLE:
         mixup_fn = MixUp(
-                mixup_alpha=cfg.MIXUP.ALPHA,
-                cutmix_alpha=cfg.MIXUP.CUTMIX_ALPHA,
-                mix_prob=cfg.MIXUP.PROB,
-                switch_prob=cfg.MIXUP.SWITCH_PROB,
-                label_smoothing=cfg.MIXUP.LABEL_SMOOTH_VALUE,
-                num_classes=cfg.MODEL.NUM_CLASSES,
+            mixup_alpha=cfg.MIXUP.ALPHA,
+            cutmix_alpha=cfg.MIXUP.CUTMIX_ALPHA,
+            mix_prob=cfg.MIXUP.PROB,
+            switch_prob=cfg.MIXUP.SWITCH_PROB,
+            label_smoothing=cfg.MIXUP.LABEL_SMOOTH_VALUE,
+            num_classes=cfg.MODEL.NUM_CLASSES,
         )
 
     for cur_iter, (inputs, labels, _, meta) in enumerate(train_loader):
@@ -89,14 +89,13 @@ def train_epoch(
                     meta[key] = val.cuda(non_blocking=True)
 
         # Update the learning rate.
-        new_lr = optim.get_epoch_lr(
-            cur_epoch + float(cur_iter) / data_size, cfg)
+        new_lr = optim.get_epoch_lr(cur_epoch + float(cur_iter) / data_size, cfg)
         if new_lr != lr:
             optim.set_lr(optimizer, lr)
             if cfg.JOINT_LEARNING.PRETRAINED:
                 dn_models.set_lr(lr)
             else:
-                dn_models.set_lr(lr*10)
+                dn_models.set_lr(lr * 10)
             lr = new_lr
         train_meter.data_toc()
         if cfg.MIXUP.ENABLE:
@@ -109,15 +108,17 @@ def train_epoch(
             else:
                 preds = model(inputs)
             # Explicitly declare reduction to mean.
-            loss_fun_1 = losses.get_loss_func(cfg.MODEL.LOSS_FUNC)(
-                    reduction="mean"
-            )
+            loss_fun_1 = losses.get_loss_func(cfg.MODEL.LOSS_FUNC)(reduction="mean")
             # Compute the loss.
             loss_1 = loss_fun_1(preds, labels)
         # wandb.log({'loss': loss_1})
         # Get gradients from dn_lr
-        gradients_from_dn, dn_models, dn_loss = train_dn_one_iter(preds.detach().clone().float(), labels.clone().float(), dn_models,
-                                                                  action="average")
+        gradients_from_dn, dn_models, dn_loss = train_dn_one_iter(
+            preds.detach().clone().float(),
+            labels.clone().float(),
+            dn_models,
+            action="average",
+        )
         dn_total_loss += dn_loss
         # with torch.no_grad():
         #     # final_outputs = torch.Tensor(final_outputs)
@@ -135,7 +136,6 @@ def train_epoch(
 
         # Only use the loss from DN
         else:
-            # # My code for joint learning
             # scaler.scale(preds).backward(gradients_from_dn)
             # scaler.unscale_(optimizer)
             # Using two losses here - one from DN and one from CNN
@@ -148,11 +148,11 @@ def train_epoch(
         # Clip gradients if necessary
         if cfg.SOLVER.CLIP_GRAD_VAL:
             torch.nn.utils.clip_grad_value_(
-                    model.parameters(), cfg.SOLVER.CLIP_GRAD_VAL
+                model.parameters(), cfg.SOLVER.CLIP_GRAD_VAL
             )
         elif cfg.SOLVER.CLIP_GRAD_L2NORM:
             torch.nn.utils.clip_grad_norm_(
-                    model.parameters(), cfg.SOLVER.CLIP_GRAD_L2NORM
+                model.parameters(), cfg.SOLVER.CLIP_GRAD_L2NORM
             )
         # Update the parameters.
         optimizer.step()
@@ -161,7 +161,7 @@ def train_epoch(
 
         if cfg.MIXUP.ENABLE:
             _top_max_k_vals, top_max_k_inds = torch.topk(
-                    labels, 2, dim=1, largest=True, sorted=True
+                labels, 2, dim=1, largest=True, sorted=True
             )
             idx_top1 = torch.arange(labels.shape[0]), top_max_k_inds[:, 0]
             idx_top2 = torch.arange(labels.shape[0]), top_max_k_inds[:, 1]
@@ -180,8 +180,8 @@ def train_epoch(
             # write to tensorboard format if available.
             if writer is not None:
                 writer.add_scalars(
-                        {"Train/loss": loss_1, "Train/lr": lr},
-                        global_step=data_size * cur_epoch + cur_iter,
+                    {"Train/loss": loss_1, "Train/lr": lr},
+                    global_step=data_size * cur_epoch + cur_iter,
                 )
 
         else:
@@ -194,15 +194,14 @@ def train_epoch(
 
             else:
                 # Compute the errors.
-                num_topks_correct = metrics.topks_correct(
-                    preds, labels, (1, 5))
+                num_topks_correct = metrics.topks_correct(preds, labels, (1, 5))
                 top1_err, top5_err = [
                     (1.0 - x / preds.size(0)) * 100.0 for x in num_topks_correct
                 ]
                 # Gather all the predictions across all the devices.
                 if cfg.NUM_GPUS > 1:
                     loss_1, top1_err, top5_err = du.all_reduce(
-                            [loss_1, top1_err, top5_err]
+                        [loss_1, top1_err, top5_err]
                     )
 
                 # Copy the stats from GPU to CPU (sync point).
@@ -214,25 +213,25 @@ def train_epoch(
 
             # Update and log stats.
             train_meter.update_stats(
-                    top1_err,
-                    top5_err,
-                    loss_1,
-                    lr,
-                    inputs[0].size(0)
-                    * max(
-                            cfg.NUM_GPUS, 1
-                    ),  # If running  on CPU (cfg.NUM_GPUS == 1), use 1 to represent 1 CPU.
+                top1_err,
+                top5_err,
+                loss_1,
+                lr,
+                inputs[0].size(0)
+                * max(
+                    cfg.NUM_GPUS, 1
+                ),  # If running  on CPU (cfg.NUM_GPUS == 1), use 1 to represent 1 CPU.
             )
             # write to tensorboard format if available.
             if writer is not None:
                 writer.add_scalars(
-                        {
-                            "Train/loss_1": loss_1,
-                            "Train/lr": lr,
-                            "Train/Top1_err": top1_err,
-                            "Train/Top5_err": top5_err,
-                        },
-                        global_step=data_size * cur_epoch + cur_iter,
+                    {
+                        "Train/loss_1": loss_1,
+                        "Train/lr": lr,
+                        "Train/Top1_err": top1_err,
+                        "Train/Top5_err": top5_err,
+                    },
+                    global_step=data_size * cur_epoch + cur_iter,
                 )
 
         train_meter.iter_toc()  # measure allreduce for this meter
@@ -242,8 +241,12 @@ def train_epoch(
     # Log epoch stats.
     this_loss = train_meter.loss_total
     num_iter = len(train_loader)
-    wandb.log({'cnn train loss': this_loss/num_iter,
-               'dn train loss': dn_total_loss/num_iter})
+    wandb.log(
+        {
+            "cnn train loss": this_loss / num_iter,
+            "dn train loss": dn_total_loss / num_iter,
+        }
+    )
     train_meter.log_epoch_stats(cur_epoch)
     train_meter.reset()
     return dn_models
@@ -299,8 +302,7 @@ def eval_epoch(val_loader, model, dn_models, val_meter, cur_epoch, cfg, writer=N
 
             if cfg.NUM_GPUS > 1:
                 preds = torch.cat(du.all_gather_unaligned(preds), dim=0)
-                ori_boxes = torch.cat(
-                    du.all_gather_unaligned(ori_boxes), dim=0)
+                ori_boxes = torch.cat(du.all_gather_unaligned(ori_boxes), dim=0)
                 metadata = torch.cat(du.all_gather_unaligned(metadata), dim=0)
 
             val_meter.iter_toc()
@@ -315,8 +317,7 @@ def eval_epoch(val_loader, model, dn_models, val_meter, cur_epoch, cfg, writer=N
                     preds, labels = du.all_gather([preds, labels])
             else:
                 # Compute the errors.
-                num_topks_correct = metrics.topks_correct(
-                    preds, labels, (1, 5))
+                num_topks_correct = metrics.topks_correct(preds, labels, (1, 5))
 
                 # Combine the errors across the GPUs.
                 top1_err, top5_err = [
@@ -331,18 +332,18 @@ def eval_epoch(val_loader, model, dn_models, val_meter, cur_epoch, cfg, writer=N
                 val_meter.iter_toc()
                 # Update and log stats.
                 val_meter.update_stats(
-                        top1_err,
-                        top5_err,
-                        inputs[0].size(0)
-                        * max(
-                                cfg.NUM_GPUS, 1
-                        ),  # If running  on CPU (cfg.NUM_GPUS == 1), use 1 to represent 1 CPU.
+                    top1_err,
+                    top5_err,
+                    inputs[0].size(0)
+                    * max(
+                        cfg.NUM_GPUS, 1
+                    ),  # If running  on CPU (cfg.NUM_GPUS == 1), use 1 to represent 1 CPU.
                 )
                 # write to tensorboard format if available.
                 if writer is not None:
                     writer.add_scalars(
-                            {"Val/Top1_err": top1_err, "Val/Top5_err": top5_err},
-                            global_step=len(val_loader) * cur_epoch + cur_iter,
+                        {"Val/Top1_err": top1_err, "Val/Top5_err": top5_err},
+                        global_step=len(val_loader) * cur_epoch + cur_iter,
                     )
 
             val_meter.update_predictions(preds, labels)
@@ -355,32 +356,24 @@ def eval_epoch(val_loader, model, dn_models, val_meter, cur_epoch, cfg, writer=N
     # write to tensorboard format if available.
     if writer is not None:
         if cfg.DETECTION.ENABLE:
-            writer.add_scalars(
-                    {"Val/mAP": val_meter.full_map}, global_step=cur_epoch
-            )
+            writer.add_scalars({"Val/mAP": val_meter.full_map}, global_step=cur_epoch)
         else:
             all_preds = [pred.clone().detach() for pred in val_meter.all_preds]
-            all_labels = [
-                label.clone().detach() for label in val_meter.all_labels
-            ]
+            all_labels = [label.clone().detach() for label in val_meter.all_labels]
             if cfg.NUM_GPUS:
                 all_preds = [pred.cpu() for pred in all_preds]
                 all_labels = [label.cpu() for label in all_labels]
-            writer.plot_eval(
-                    preds=all_preds, labels=all_labels, global_step=cur_epoch
-            )
+            writer.plot_eval(preds=all_preds, labels=all_labels, global_step=cur_epoch)
 
     if not cfg.DETECTION.ENABLE:
         # Validation for dn_models
         all_preds = [pred.clone().detach() for pred in val_meter.all_preds]
-        all_labels = [
-            label.clone().detach() for label in val_meter.all_labels
-        ]
+        all_labels = [label.clone().detach() for label in val_meter.all_labels]
         if cfg.NUM_GPUS:
             all_preds = [pred.cpu() for pred in all_preds]
             all_labels = [label.cpu() for label in all_labels]
         dn_total_loss = val_dn_one_iter(all_preds, all_labels, dn_models)
-        wandb.log({'dn val loss': dn_total_loss})
+        wandb.log({"dn val loss": dn_total_loss})
     val_meter.reset()
 
 
@@ -436,9 +429,7 @@ def build_trainer(cfg):
     # Create the video train and val loaders.
     train_loader = loader.construct_loader(cfg, "train")
     val_loader = loader.construct_loader(cfg, "val")
-    precise_bn_loader = loader.construct_loader(
-            cfg, "train", is_precise_bn=True
-    )
+    precise_bn_loader = loader.construct_loader(cfg, "train", is_precise_bn=True)
     # Create meters.
     train_meter = TrainMeter(len(train_loader), cfg)
     val_meter = ValMeter(len(val_loader), cfg)
@@ -463,6 +454,7 @@ def train(cfg):
     """
     from datetime import datetime
     from utils import create_directory
+
     # Set up environment.
     du.init_distributed_training(cfg)
     # Set random seed from configs.
@@ -497,7 +489,7 @@ def train(cfg):
 
     # Load a checkpoint to resume training if applicable.
     start_epoch = cu.load_train_checkpoint(
-            cfg, model, optimizer, scaler if cfg.TRAIN.MIXED_PRECISION else None
+        cfg, model, optimizer, scaler if cfg.TRAIN.MIXED_PRECISION else None
     )
 
     # Create the video train and val loaders.
@@ -518,9 +510,7 @@ def train(cfg):
         val_meter = ValMeter(len(val_loader), cfg)
 
     # set up writer for logging to Tensorboard format.
-    if cfg.TENSORBOARD.ENABLE and du.is_master_proc(
-            cfg.NUM_GPUS * cfg.NUM_SHARDS
-    ):
+    if cfg.TENSORBOARD.ENABLE and du.is_master_proc(cfg.NUM_GPUS * cfg.NUM_SHARDS):
         writer = tb.TensorboardWriter(cfg)
     else:
         writer = None
@@ -552,9 +542,7 @@ def train(cfg):
                 else:
                     last_checkpoint = cfg.TRAIN.CHECKPOINT_FILE_PATH
                 logger.info("Load from {}".format(last_checkpoint))
-                cu.load_checkpoint(
-                        last_checkpoint, model, cfg.NUM_GPUS > 1, optimizer
-                )
+                cu.load_checkpoint(last_checkpoint, model, cfg.NUM_GPUS > 1, optimizer)
 
         # Shuffle the dataset.
         loader.shuffle_dataset(train_loader, cur_epoch)
@@ -562,81 +550,84 @@ def train(cfg):
         # Train for one epoch.
         epoch_timer.epoch_tic()
         dn_models = train_epoch(
-                train_loader,
-                model,
-                dn_models,
-                optimizer,
-                scaler,
-                train_meter,
-                cur_epoch,
-                cfg,
-                0,
-                writer,
+            train_loader,
+            model,
+            dn_models,
+            optimizer,
+            scaler,
+            train_meter,
+            cur_epoch,
+            cfg,
+            0,
+            writer,
         )
         # for _ in range(cfg.JOINT_LEARNING.EXTRA_EPOCHS):
         #     dn_models = train_epoch_dn(train_loader, model, cfg, dn_models)
         epoch_timer.epoch_toc()
         logger.info(
-                f"Epoch {cur_epoch} takes {epoch_timer.last_epoch_time():.2f}s. Epochs "
-                f"from {start_epoch} to {cur_epoch} take "
-                f"{epoch_timer.avg_epoch_time():.2f}s in average and "
-                f"{epoch_timer.median_epoch_time():.2f}s in median."
+            f"Epoch {cur_epoch} takes {epoch_timer.last_epoch_time():.2f}s. Epochs "
+            f"from {start_epoch} to {cur_epoch} take "
+            f"{epoch_timer.avg_epoch_time():.2f}s in average and "
+            f"{epoch_timer.median_epoch_time():.2f}s in median."
         )
         logger.info(
-                f"For epoch {cur_epoch}, each iteraction takes "
-                f"{epoch_timer.last_epoch_time() / len(train_loader):.2f}s in average. "
-                f"From epoch {start_epoch} to {cur_epoch}, each iteraction takes "
-                f"{epoch_timer.avg_epoch_time() / len(train_loader):.2f}s in average."
+            f"For epoch {cur_epoch}, each iteraction takes "
+            f"{epoch_timer.last_epoch_time() / len(train_loader):.2f}s in average. "
+            f"From epoch {start_epoch} to {cur_epoch}, each iteraction takes "
+            f"{epoch_timer.avg_epoch_time() / len(train_loader):.2f}s in average."
         )
 
         is_checkp_epoch = cu.is_checkpoint_epoch(
-                cfg,
-                cur_epoch,
-                None if multigrid is None else multigrid.schedule,
+            cfg,
+            cur_epoch,
+            None if multigrid is None else multigrid.schedule,
         )
         is_eval_epoch = misc.is_eval_epoch(
-                cfg, cur_epoch, None if multigrid is None else multigrid.schedule
+            cfg, cur_epoch, None if multigrid is None else multigrid.schedule
         )
 
         # Compute precise BN stats.
         if (
-                (is_checkp_epoch or is_eval_epoch)
-                and cfg.BN.USE_PRECISE_STATS
-                and len(get_bn_modules(model)) > 0
+            (is_checkp_epoch or is_eval_epoch)
+            and cfg.BN.USE_PRECISE_STATS
+            and len(get_bn_modules(model)) > 0
         ):
             calculate_and_update_precise_bn(
-                    precise_bn_loader,
-                    model,
-                    min(cfg.BN.NUM_BATCHES_PRECISE, len(precise_bn_loader)),
-                    cfg.NUM_GPUS > 0,
+                precise_bn_loader,
+                model,
+                min(cfg.BN.NUM_BATCHES_PRECISE, len(precise_bn_loader)),
+                cfg.NUM_GPUS > 0,
             )
         _ = misc.aggregate_sub_bn_stats(model)
 
         # Save a checkpoint.
         if is_checkp_epoch:
             cu.save_checkpoint(
-                    cfg.OUTPUT_DIR,
-                    model,
-                    optimizer,
-                    cur_epoch,
-                    cfg,
-                    scaler if cfg.TRAIN.MIXED_PRECISION else None,
+                cfg.OUTPUT_DIR,
+                model,
+                optimizer,
+                cur_epoch,
+                cfg,
+                scaler if cfg.TRAIN.MIXED_PRECISION else None,
             )
-            date_time = datetime.today().strftime('%Y-%m-%d_%H-%M-%S')
-            model_save_location_torch = f'{cfg.OUTPUT_DIR}/dn_checkpoint/{date_time}/torch_{cur_epoch}/'
+            date_time = datetime.today().strftime("%Y-%m-%d_%H-%M-%S")
+            model_save_location_torch = (
+                f"{cfg.OUTPUT_DIR}/dn_checkpoint/{date_time}/torch_{cur_epoch}/"
+            )
             create_directory(model_save_location_torch)
             model_directory = save_model(model_save_location_torch, dn_models)
         # Evaluate the model on validation set.
         if is_eval_epoch:
-            eval_epoch(val_loader, model, dn_models,
-                       val_meter, cur_epoch, cfg, writer)
+            eval_epoch(val_loader, model, dn_models, val_meter, cur_epoch, cfg, writer)
 
     # Save the dn_lr model
 
     from datetime import datetime
-    date_time = datetime.today().strftime('%Y-%m-%d_%H-%M-%S')
+
+    date_time = datetime.today().strftime("%Y-%m-%d_%H-%M-%S")
     from utils import create_directory
-    model_save_location_torch = f'{cfg.OUTPUT_DIR}/dn/{date_time}/torch/'
+
+    model_save_location_torch = f"{cfg.OUTPUT_DIR}/dn/{date_time}/torch/"
 
     create_directory(model_save_location_torch)
     model_directory = save_model(model_save_location_torch, dn_models)

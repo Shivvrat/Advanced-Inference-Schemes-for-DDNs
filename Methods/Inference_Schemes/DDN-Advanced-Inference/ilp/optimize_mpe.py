@@ -19,11 +19,10 @@ def compute_mpe_using_gurobi(args):
             env.setParam("OutputFlag", 0)
             env.start()
             model = Model("DN-MPE-ILP", env=env)
-            model.setParam("TimeLimit", 60 * 60)  # 1 hour
+            model.setParam("TimeLimit", 60)  # 60 seconds
     else:
         model = Model("DN-MPE-ILP")
 
-    # model.setParam("SolutionLimit", 100)
     cnn_feature_size = len(input_values)
     model._cur_obj = float("inf")
     model._time = time.time()

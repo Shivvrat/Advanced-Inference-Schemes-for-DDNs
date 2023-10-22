@@ -158,9 +158,7 @@ def evaluate_ava(
     )
 
     logger.info("Evaluating with %d unique GT frames." % len(groundtruth[0]))
-    logger.info(
-        "Evaluating with %d unique detection frames" % len(detections[0])
-    )
+    logger.info("Evaluating with %d unique detection frames" % len(detections[0]))
 
     write_results(detections, "detections_%s.csv" % name)
     write_results(groundtruth, "groundtruth_%s.csv" % name)
@@ -171,14 +169,10 @@ def evaluate_ava(
     return results["PascalBoxes_Precision/mAP@0.5IOU"]
 
 
-def run_evaluation(
-    categories, groundtruth, detections, excluded_keys, verbose=True
-):
+def run_evaluation(categories, groundtruth, detections, excluded_keys, verbose=True):
     """AVA evaluation main logic."""
 
-    pascal_evaluator = object_detection_evaluation.PascalDetectionEvaluator(
-        categories
-    )
+    pascal_evaluator = object_detection_evaluation.PascalDetectionEvaluator(categories)
 
     boxes, labels, _ = groundtruth
 
@@ -217,10 +211,7 @@ def run_evaluation(
     for image_key in boxes:
         if image_key in excluded_keys:
             logging.info(
-                (
-                    "Found excluded timestamp in detections: %s. "
-                    "It will be ignored."
-                ),
+                ("Found excluded timestamp in detections: %s. " "It will be ignored."),
                 image_key,
             )
             continue
@@ -257,7 +248,7 @@ def get_ava_eval_data(
     video_idx_to_name=None,
 ):
     """
-    Convert our data format into the data format used in official AVA
+    Convert data format into the data format used in official AVA
     evaluation.
     """
 
