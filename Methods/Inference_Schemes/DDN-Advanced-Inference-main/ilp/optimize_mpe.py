@@ -104,7 +104,7 @@ def compute_mpe_using_gurobi(args):
         model.addGenConstrExp(
             output_before_activation,
             output_exp,
-            options="FuncPieces=-1 FuncPieceError=0.01",
+            options="FuncPieces=-1 FuncPieceError=0.001",
         )
 
         # Now the expression 1+e^z
@@ -114,7 +114,7 @@ def compute_mpe_using_gurobi(args):
         # Now the expression log_e(1+e^z)
         log_value_rhs = model.addVar(lb=-float("inf"))
         model.addGenConstrLog(
-            value_rhs, log_value_rhs, options="FuncPieces=-1 FuncPieceError=0.01"
+            value_rhs, log_value_rhs, options="FuncPieces=-1 FuncPieceError=0.001"
         )
 
         # Now the expression xz (need to add x)
