@@ -27,9 +27,9 @@ We present a unified framework called deep dependency networks (DDNs) that combi
 # Quick Start
 
 1. Clone this repo.
-2. Use to requirements file ([charades](MLAC/requirements/joint_ddn_charades.yml), [wetlab and TaCOS](MLAC/requirements/joint_ddn_tacos_wetlab.yml), [coco](MLIC/requirements/ddn_coco.yml), [NUS-WIDE and PASCAL VOC](MLIC/requirements/ddn_nus_voc.yml)) given in the corresponding directories to install the packages (please use conda for this). We also provide the requirements files to install the dependencies for all the baselines in their corresponding folders.
+2. Use to requirements file ([charades](MLAC/requirements/joint_ddn_charades.yml), [wetlab and TaCOS](Methods/MLAC/requirements/joint_ddn_tacos_wetlab.yml), [coco](Methods/MLIC/requirements/ddn_coco.yml), [NUS-WIDE and PASCAL VOC](Methods/MLIC/requirements/ddn_nus_voc.yml)) given in the corresponding directories to install the packages (please use conda for this). We also provide the requirements files to install the dependencies for all the baselines in their corresponding folders.
 3. Download the datasets and the pre-trained models. More details about the baselines are given in MODEL_ZOO.md files ([MLAC](MLAC/MODEL_ZOO.md) and [MLIC](MLIC/MODEL_ZOO.md) ).
-4. Use the requirement file for the [Advanced Inference Schemes]()
+4. Use the requirement file for the [Advanced Inference Schemes](Methods/Inference_Schemes/DDN-Advanced-Inference-main/environment.yml)
 5. Train and perform Inferences DDN. More details are given in GETTING_STARTED.md files in the directories.
 
 The following things are supported for this project -
