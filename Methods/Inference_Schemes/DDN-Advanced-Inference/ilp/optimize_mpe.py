@@ -4,9 +4,6 @@ import gurobipy as gp
 import numpy as np
 
 
-from gurobipy import Model, GRB, quicksum
-
-
 def compute_mpe_using_gurobi(args):
     """
     nn_dict: Dictionary containing weights and biases for each layer

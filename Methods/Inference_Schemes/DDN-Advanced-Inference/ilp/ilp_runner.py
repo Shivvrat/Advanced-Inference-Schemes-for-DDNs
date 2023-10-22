@@ -5,9 +5,7 @@ import os
 import numpy as np
 from loguru import logger
 from tqdm import tqdm
-import cProfile, pstats, io
 from ilp.optimize_mpe import compute_mpe_using_gurobi
-from ilp.ilp_solver_scip import create_solver
 
 from utils import (
     calculate_evaluation_metrics,
