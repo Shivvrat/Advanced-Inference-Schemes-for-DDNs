@@ -121,7 +121,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="voc", help="name of dataset")
-parser.add_argument("--dn_type", type=str, default="nn", help="name of dn_type")
+parser.add_argument("--dn_type", type=str, default="lr", help="name of dn_type")
 parser.add_argument(
     "--search_method",
     type=str,

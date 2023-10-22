@@ -3,14 +3,13 @@ from yacs.config import CfgNode as ConfigurationNode
 # YACS overwrite these settings using YAML
 
 
-
 # -----------------------------------------------------------------------------
 # Config definition
 # -----------------------------------------------------------------------------
 
 __C = ConfigurationNode()
-__C.CONFIG_PATH = './config/nus/dependency_graph_lr.yaml'
-__C.OUTPUT_PATH = './outputs/'
+__C.CONFIG_PATH = "./config/nus/dependency_graph_lr.yaml"
+__C.OUTPUT_PATH = "./outputs/"
 __C.LOGGER_PATH = "./logger/"
 __C.DEBUG = False
 __C.NUM_POOLS = 10
@@ -20,8 +19,8 @@ __C.DEVICE = "gpu"
 # ---------------------------------------------------------------------------- #
 
 __C.DATASET = ConfigurationNode()
-__C.DATASET.TRAIN_FILE_LOCATION = 'data/external/cnn_outputs/train_saved_data.0.txt'
-__C.DATASET.TEST_FILE_LOCATION = 'data/external/cnn_outputs/val_saved_data.0.txt'
+__C.DATASET.TRAIN_FILE_LOCATION = "data/external/cnn_outputs/train_saved_data.0.txt"
+__C.DATASET.TEST_FILE_LOCATION = "data/external/cnn_outputs/val_saved_data.0.txt"
 
 # __C.DATASET.AUGMENTATION.GAUSS_VAR_LIMIT =(10.0, 40.0)
 # __C.DATASET.AUGMENTATION.BLUR_LIMIT = 7
@@ -57,7 +56,7 @@ __C.TRAIN.CHECKPOINT_FILE_PATH = "models"
 # Train model definitions
 # model backbone wetlab
 __C.MODEL = ConfigurationNode()
-__C.MODEL.NAME = "nn"
+__C.MODEL.NAME = "lr"
 __C.MODEL.EPOCHS = 200
 __C.MODEL.LEARNING_RATE = 0.01
 __C.MODEL.L1_WEIGHT = 0.01

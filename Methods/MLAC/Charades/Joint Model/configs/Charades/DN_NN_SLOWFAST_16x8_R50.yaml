@@ -2,7 +2,7 @@ JOINT_LEARNING:
   PRETRAINED: True
   MODEL_DIRECTORY: "pre_trained/trained_dn_nn_model"
   # MODEL_DIRECTORY: ""
-  DN_TYPE: "nn"
+  DN_TYPE: "lr"
   LEARNING_RATE: 0.0001
   L1_WEIGHT: 0.001
   EXTRA_EPOCHS: 2

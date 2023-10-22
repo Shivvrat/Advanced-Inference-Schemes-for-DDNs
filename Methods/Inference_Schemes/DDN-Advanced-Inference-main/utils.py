@@ -12,11 +12,8 @@ from model_class.dn_nn import NN
 def get_cnn_output_and_model(dataset, method):
     print(f"dataset: {dataset}, method: {method}")
     print(dataset, method)
-    if os.path.exists(f"/data/DDN/data/"):
-        base_path = "/data/DDN/data/"
-    elif os.path.exists(f"/home/ptg/ddn/data/"):
-        base_path = "/home/ptg/ddn/data/"
-    else:
+    base_path = "/data/DDN/data/"
+    if not os.path.exists(base_path):
         raise ValueError("No data path found")
     if dataset == "charades":
         model_path = f"{base_path}charades/{method}/trained_dn_{method}_model"
